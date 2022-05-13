@@ -2,13 +2,16 @@
 using System.Text;
 
 var data = ReadFromSQL();
-var querry = from d in data
-select d;
-foreach(var i in querry)
+// Using LINQ
+var querry = (from d in data
+              select d).OrderBy(n => n.MusteriUnvani).Take(5..19);
+
+foreach (var i in querry)
 {
-    System.Console.WriteLine(i.Adres);
+    System.Console.WriteLine($"{i.Id} - {i.MusteriID}: {i.MusteriAdi}, {i.MusteriUnvani}");
 }
 
+// Methods
 static SqlConnection SetSQLConnection()
 {
 
@@ -21,7 +24,7 @@ static SqlConnection SetSQLConnection()
     try
     {
         connection.Open();
-        Console.WriteLine("\tSQL Connected...");
+        Console.WriteLine("\tSQL Server Connection Established...");
     }
     catch (Exception e)
     {
@@ -32,6 +35,7 @@ static SqlConnection SetSQLConnection()
 
 static List<Shipwreck> ReadFromSQL()
 {
+    int id = 1;
     List<Shipwreck> listOfItems = new List<Shipwreck>();
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.Append("Select * From dbo.Musteriler");
@@ -40,10 +44,11 @@ static List<Shipwreck> ReadFromSQL()
     using (SqlCommand command = new SqlCommand(sqlQuery, SetSQLConnection()))
     {
         SqlDataReader rdr = command.ExecuteReader();
-        while(rdr.Read())
+        while (rdr.Read())
         {
             listOfItems.Add(new Shipwreck
             {
+                Id = id++,
                 MusteriID = Convert.ToString(rdr[0]),
                 SirketAdi = Convert.ToString(rdr[1]),
                 MusteriAdi = Convert.ToString(rdr[2]),
